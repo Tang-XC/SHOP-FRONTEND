@@ -94,3 +94,4 @@ const handleNetworkError = (error:AxiosError):void => {
   }
   message.error(resMessage === undefined ? errMessage : resMessage.message);
 };
+export default service;
