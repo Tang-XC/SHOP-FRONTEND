@@ -10,7 +10,9 @@ export default (Component: React.ComponentType) => {
     }
     return <Component />;
   } else {
+    if (location.pathname === '/auth') {
+      return <Component />;
+    }
     return <Navigate to="/auth" />;
-    return <h1>Hello</h1>;
   }
 };
