@@ -1,9 +1,9 @@
 import axios,{AxiosResponse,InternalAxiosRequestConfig,AxiosInstance,AxiosError} from 'axios';
-import { message } from 'antd';
+
 interface ResponseData {
   code: number;
   data: any;
-  message: string;
+  msg: string;
 }
 const baseUrl:string = import.meta.env.VITE_BASE_URL;
 const service:AxiosInstance = axios.create({
@@ -15,6 +15,10 @@ const service:AxiosInstance = axios.create({
 });
 service.interceptors.request.use(
   (config:InternalAxiosRequestConfig) => {
+    let token = sessionStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = token;
+    }
     return config;
   },
   (error:AxiosError) => {
@@ -26,17 +30,18 @@ service.interceptors.response.use(
     return response.data;
   },
   (error:AxiosError) => {
-    handleNetworkError(error);
-    return Promise.reject(error);
+    return handleNetworkError(error);
+    // return Promise.reject(error);
   }
 );
-const handleNetworkError = (error:AxiosError):void => {
+const handleNetworkError = (error:AxiosError):ResponseData => {
   let errMessage:string = '未知错误';
-  let response:AxiosResponse | undefined = error.response;
-  let resMessage:ResponseData | undefined = undefined;
-  if(response){
-    resMessage = response.data
+  let resData:ResponseData = {
+    code: 500,
+    data: null,
+    msg: '',
   }
+  let response:AxiosResponse | undefined = error.response;
   if (error.response) {
     const errStatus:number = error.response.status;
     if (errStatus) {
@@ -92,6 +97,11 @@ const handleNetworkError = (error:AxiosError):void => {
         errMessage = `其他连接错误 --${error.code}`;
     }
   }
-  message.error(resMessage === undefined ? errMessage : resMessage.message);
+  if(response){
+    resData = response.data
+  }else{
+    resData.msg = errMessage
+  }
+  return resData
 };
 export default service;

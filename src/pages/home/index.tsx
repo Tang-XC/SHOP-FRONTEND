@@ -1,12 +1,26 @@
 import { FC } from 'react';
-import {useAuth} from '@/contexts/authContext'
+import { Button } from 'react-bootstrap';
+import { useMessage } from '@/contexts/messageContext';
 interface Props {}
 const Home: FC<Props> = (props: Props) => {
-  const {state,dispatch} = useAuth();
+  const { state, dispatch } = useMessage();
   return (
     <div>
       <h1>Home</h1>
-      <h3>{state.name}</h3>
+      <Button
+        onClick={() => {
+          dispatch({
+            type: 'SET_MESSAGE',
+            payload: {
+              type: 'success',
+              title: 'Success',
+              content: 'This is a success message',
+              delay: 3000,
+            },
+          });
+        }}>
+        Click me
+      </Button>
     </div>
   );
 };

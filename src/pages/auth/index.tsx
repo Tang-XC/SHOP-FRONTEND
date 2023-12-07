@@ -1,22 +1,17 @@
-import { FC, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
+import { SvgIcon } from '@/components';
+import withAuth from '@/hocs/withAuth';
+import { useMessage } from '@/contexts/messageContext';
+import { useAuth } from '@/contexts/authContext';
+import { SignInData, signIn, SignUpData, signUp } from '@/api/user';
 import './index.less';
-interface SignUpFormData {
-  account: string;
-  password: string;
-  phone: string;
-  email: string;
-}
-interface SignInFormData {
-  account: string;
-  password: string;
-}
 const Auth: FC = () => {
-  const [signInFormData, setSignInFormData] = useState<SignInFormData>({
+  const [signInFormData, setSignInFormData] = useState<SignInData>({
     account: '',
     password: '',
   });
-  const [signUpFormData, setSignUpFormData] = useState<SignUpFormData>({
+  const [signUpFormData, setSignUpFormData] = useState<SignUpData>({
     account: '',
     password: '',
     phone: '',
@@ -25,6 +20,10 @@ const Auth: FC = () => {
   const [signInValidated, setSignInValidated] = useState<boolean>(false);
   const [signUpValidated, setSignUpValidated] = useState<boolean>(false);
   const [authType, setAuthType] = useState<'signup' | 'signin'>('signin');
+  const signInForm = useRef<HTMLFormElement>(null);
+  const signUpForm = useRef<HTMLFormElement>(null);
+  const { dispatch } = useMessage();
+  const { dispatch: authDispatch, getUserInfo } = useAuth();
   const handleSignInChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ): void => {
@@ -44,9 +43,8 @@ const Auth: FC = () => {
       return;
     }
     setSignInValidated(false);
-    console.log(signInFormData);
+    handleSignIn(signInFormData);
   };
-
   const handleSignUpChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ): void => {
@@ -66,7 +64,62 @@ const Auth: FC = () => {
       return;
     }
     setSignUpValidated(false);
-    console.log(signUpFormData);
+    handleSignUp(signUpFormData);
+  };
+
+  const handleSignIn = async (data: SignInData): Promise<void> => {
+    const result = await signIn(data);
+    if (result.code === 200) {
+      dispatch({
+        type: 'SET_MESSAGE',
+        payload: {
+          type: 'success',
+          icon: <SvgIcon name="correct" color="var(--bs-green)" />,
+          content: result.data.message,
+          delay: 5000,
+        },
+      });
+      authDispatch({
+        type: 'SIGN_UP',
+        payload: result.data.token,
+      });
+      signInForm.current?.reset();
+    } else {
+      dispatch({
+        type: 'SET_MESSAGE',
+        payload: {
+          type: 'danger',
+          icon: <SvgIcon name="error" color="var(--bs-red)" />,
+          content: result.msg,
+          delay: 5000,
+        },
+      });
+    }
+  };
+  const handleSignUp = async (data: SignUpData): Promise<void> => {
+    const result = await signUp(data);
+    if (result.code === 200) {
+      dispatch({
+        type: 'SET_MESSAGE',
+        payload: {
+          type: 'success',
+          icon: <SvgIcon name="correct" />,
+          content: result.data,
+          delay: 5000,
+        },
+      });
+      signUpForm.current?.reset();
+    } else {
+      dispatch({
+        type: 'SET_MESSAGE',
+        payload: {
+          type: 'danger',
+          icon: <SvgIcon name="error" />,
+          content: result.msg,
+          delay: 5000,
+        },
+      });
+    }
   };
   return (
     <div className="auth">
@@ -74,6 +127,7 @@ const Auth: FC = () => {
       <div className="auth-form">
         {authType === 'signin' ? (
           <Form
+            ref={signInForm}
             noValidate
             validated={signInValidated}
             className="w-100"
@@ -82,7 +136,6 @@ const Auth: FC = () => {
               <Form.Label>账号</Form.Label>
               <Form.Control
                 required
-                autoComplete="username"
                 placeholder="请输入账号"
                 onChange={handleSignInChange}
               />
@@ -94,7 +147,6 @@ const Auth: FC = () => {
               <Form.Label>密码</Form.Label>
               <Form.Control
                 required
-                autoComplete="current-password"
                 type="password"
                 placeholder="请输入密码"
                 onChange={handleSignInChange}
@@ -126,6 +178,7 @@ const Auth: FC = () => {
           </Form>
         ) : (
           <Form
+            ref={signUpForm}
             noValidate
             validated={signUpValidated}
             className="w-100"
@@ -134,14 +187,12 @@ const Auth: FC = () => {
               <Form.Label>账号</Form.Label>
               <Form.Control
                 placeholder="请输入账号"
-                autoComplete="username"
                 onChange={handleSignUpChange}
               />
             </Form.Group>
             <Form.Group className="mb-3" controlId="password">
               <Form.Label>密码</Form.Label>
               <Form.Control
-                autoComplete="current-password"
                 type="password"
                 placeholder="请输入密码"
                 onChange={handleSignUpChange}
@@ -179,4 +230,6 @@ const Auth: FC = () => {
     </div>
   );
 };
-export default Auth;
+export default () => {
+  return withAuth(Auth);
+};

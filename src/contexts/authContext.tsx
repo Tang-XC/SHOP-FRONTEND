@@ -1,5 +1,6 @@
 import React, { createContext, FC, useContext } from 'react';
 import { User } from './model/auth';
+import { getUser } from '@/api/user';
 interface Props {
   children: React.ReactNode;
 }
@@ -10,6 +11,7 @@ interface Action {
 interface AuthContext {
   state: User;
   dispatch: Function;
+  getUserInfo: Function;
 }
 enum ACTION_TYPE {
   SIGN_UP = 'SIGN_UP',
@@ -21,7 +23,8 @@ const initialState: User = {
   name: '',
   avatar: '',
   email: '',
-  token: '',
+  phone: '',
+  token: sessionStorage.getItem('token') || '',
   role: '',
 };
 const authContext: React.Context<{}> = createContext({});
@@ -33,16 +36,14 @@ export const AuthContextProvider: FC<Props> = ({ children }) => {
     const { type, payload } = action;
     switch (type) {
       case ACTION_TYPE.SIGN_UP:
+        sessionStorage.setItem('token', payload);
         return { ...state, token: payload };
       case ACTION_TYPE.SET_USER_INFO:
-        return {
+        let result = {
           ...state,
-          id: payload.id,
-          name: payload.name,
-          avatar: payload.avatar,
-          email: payload.email,
-          role: payload.role,
+          ...payload,
         };
+        return result;
       case ACTION_TYPE.SIGN_OUT:
         return { ...state, ...initialState };
       default:
@@ -56,9 +57,19 @@ export const AuthContextProvider: FC<Props> = ({ children }) => {
       dispatch(action);
     }
   };
+  const getUserInfo = async () => {
+    const result = await getUser();
+    if (result.code === 200) {
+      dispatch({
+        type: ACTION_TYPE.SET_USER_INFO,
+        payload: result.data,
+      });
+    }
+  };
   return (
     <>
-      <authContext.Provider value={{ state, dispatch: funcDispatch }}>
+      <authContext.Provider
+        value={{ state, dispatch: funcDispatch, getUserInfo }}>
         {children}
       </authContext.Provider>
     </>
