@@ -1,6 +1,6 @@
 import axios,{AxiosResponse,InternalAxiosRequestConfig,AxiosInstance,AxiosError} from 'axios';
 
-interface ResponseData {
+export interface ResponseData {
   code: number;
   data: any;
   msg: string;

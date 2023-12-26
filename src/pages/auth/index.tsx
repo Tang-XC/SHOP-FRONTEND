@@ -1,10 +1,10 @@
 import { FC, useRef, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { SvgIcon } from '@/components';
-import withAuth from '@/hocs/withAuth';
 import { useMessage } from '@/contexts/messageContext';
 import { useAuth } from '@/contexts/authContext';
-import { SignInData, signIn, SignUpData, signUp } from '@/api/user';
+import { useNavigate } from 'react-router-dom';
+import { SignInData, SignUpData, signUp } from '@/api/user';
 import './index.less';
 const Auth: FC = () => {
   const [signInFormData, setSignInFormData] = useState<SignInData>({
@@ -22,8 +22,9 @@ const Auth: FC = () => {
   const [authType, setAuthType] = useState<'signup' | 'signin'>('signin');
   const signInForm = useRef<HTMLFormElement>(null);
   const signUpForm = useRef<HTMLFormElement>(null);
-  const { dispatch } = useMessage();
-  const { dispatch: authDispatch, getUserInfo } = useAuth();
+  const { dispatch: dispatchMessage } = useMessage();
+  const { state: authState, signIn } = useAuth();
+  const navigate = useNavigate();
   const handleSignInChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ): void => {
@@ -70,7 +71,7 @@ const Auth: FC = () => {
   const handleSignIn = async (data: SignInData): Promise<void> => {
     const result = await signIn(data);
     if (result.code === 200) {
-      dispatch({
+      dispatchMessage({
         type: 'SET_MESSAGE',
         payload: {
           type: 'success',
@@ -79,13 +80,10 @@ const Auth: FC = () => {
           delay: 5000,
         },
       });
-      authDispatch({
-        type: 'SIGN_UP',
-        payload: result.data.token,
-      });
+      navigate('/home');
       signInForm.current?.reset();
     } else {
-      dispatch({
+      dispatchMessage({
         type: 'SET_MESSAGE',
         payload: {
           type: 'danger',
@@ -99,7 +97,7 @@ const Auth: FC = () => {
   const handleSignUp = async (data: SignUpData): Promise<void> => {
     const result = await signUp(data);
     if (result.code === 200) {
-      dispatch({
+      dispatchMessage({
         type: 'SET_MESSAGE',
         payload: {
           type: 'success',
@@ -110,7 +108,7 @@ const Auth: FC = () => {
       });
       signUpForm.current?.reset();
     } else {
-      dispatch({
+      dispatchMessage({
         type: 'SET_MESSAGE',
         payload: {
           type: 'danger',
@@ -230,6 +228,4 @@ const Auth: FC = () => {
     </div>
   );
 };
-export default () => {
-  return withAuth(Auth);
-};
+export default Auth;

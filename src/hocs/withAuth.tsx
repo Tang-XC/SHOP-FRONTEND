@@ -1,18 +1,20 @@
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/authContext';
-export default (Component: React.ComponentType) => {
-  const location = useLocation();
+import _401_ from '@/pages/Error/401';
+export default (
+  Component: React.ComponentType,
+  path?: string,
+  role?: number
+) => {
   const { state } = useAuth();
-  const { token } = state;
-  if (token) {
-    if (location.pathname === '/auth') {
-      return <Navigate to="/" />;
-    }
+  const { token, roles } = state;
+  console.log(roles);
+  if (token && roles.some((it) => it.id === role)) {
     return <Component />;
   } else {
-    if (location.pathname === '/auth') {
-      return <Component />;
+    if (!path) {
+      return <_401_ />;
     }
-    return <Navigate to="/auth" />;
+    return <Navigate to={path as string} />;
   }
 };

@@ -16,7 +16,7 @@ const LayoutPage: FC<Props> = (props: Props) => {
       <div>
         <BaseAlert {...state} />
       </div>
-      <div className="layout-content">
+      <div className="layout-content p-4">
         <Outlet />
       </div>
     </div>

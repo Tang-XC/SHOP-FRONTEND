@@ -1,29 +1,46 @@
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useMemo } from 'react';
 import { Container, Nav, Navbar, Button } from 'react-bootstrap';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { navRoutes } from '@/route/routes';
+import { Route, useNavigate } from 'react-router-dom';
+
 import { useAuth } from '@/contexts/authContext';
 import { Avatar } from '@/components';
+import {
+  adminRoutes,
+  merchantRoutes,
+  consumerRoutes,
+  lazyLoad,
+} from '@/route/routes';
+import { RouteItem } from '@/route/routes';
 import classNames from 'classnames';
 import './index.less';
 interface Props {}
+interface NavItem extends RouteItem {
+  key: string;
+}
 const Header: FC<Props> = (props: Props) => {
-  const { state, getUserInfo } = useAuth();
+  const { state: authState } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
+  let navMenu = useMemo(() => {
+    if (authState.roles.some((it) => it.id === 1)) {
+      return [...consumerRoutes, ...adminRoutes];
+    } else if (authState.roles.some((it) => it.id === 3)) {
+      return [...consumerRoutes, ...merchantRoutes];
+    }
+    return consumerRoutes;
+  }, [authState.roles]);
   const handleNavigate = (path: string): void => {
     navigate(path);
   };
   useEffect(() => {
-    getUserInfo();
-  }, []);
+    console.log('header', authState);
+  }, [authState]);
   return (
     <div className="header-wrap">
       <Navbar>
         <Container className="align-items-center">
           <Navbar.Brand href="#home">Logo & Title</Navbar.Brand>
           <Nav className="align-items-center">
-            {navRoutes.map((item, index) => {
+            {navMenu.map((item, index) => {
               return (
                 <Nav.Link
                   className={classNames({
@@ -38,9 +55,9 @@ const Header: FC<Props> = (props: Props) => {
               );
             })}
             <Nav.Link key="loginStatus">
-              {state.token ? (
+              {authState.token ? (
                 <div>
-                  <Avatar />
+                  <Avatar name={authState.name} avatar={authState.avatar} />
                 </div>
               ) : (
                 <div

@@ -4,12 +4,12 @@ interface Props {
   children: React.ReactNode;
 }
 interface Action {
-  type: ACTION_TYPE;
+  type: ACTION_TYPE | string;
   payload: any;
 }
 interface MessageContext {
   state: Message;
-  dispatch: Function;
+  dispatch: React.Dispatch<Action>;
 }
 enum ACTION_TYPE {
   SET_MESSAGE = 'SET_MESSAGE',
@@ -45,16 +45,9 @@ export const MessageContextProvider: FC<Props> = ({ children }) => {
         return state;
     }
   }, initialState);
-  const funcDispatch = (action: Action | Function): void => {
-    if (typeof action === 'function') {
-      action(dispatch);
-    } else {
-      dispatch(action);
-    }
-  };
   return (
     <>
-      <messageContext.Provider value={{ state, dispatch: funcDispatch }}>
+      <messageContext.Provider value={{ state, dispatch }}>
         {children}
       </messageContext.Provider>
     </>
