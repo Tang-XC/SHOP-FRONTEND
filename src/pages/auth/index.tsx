@@ -1,118 +1,41 @@
-import { FC, useRef, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
-import { SvgIcon } from '@/components';
-import { useMessage } from '@/contexts/messageContext';
+import { FC } from 'react';
+import {
+  CssBaseline,
+  Box,
+  Typography,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Button,
+  Grid,
+  Link,
+} from '@mui/material';
+import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '@/contexts/authContext';
-import { useNavigate } from 'react-router-dom';
-import { SignInData, SignUpData, signUp } from '@/api/user';
-import './index.less';
-const Auth: FC = () => {
-  const [signInFormData, setSignInFormData] = useState<SignInData>({
-    account: '',
-    password: '',
-  });
-  const [signUpFormData, setSignUpFormData] = useState<SignUpData>({
-    account: '',
-    password: '',
-    phone: '',
-    email: '',
-  });
-  const [signInValidated, setSignInValidated] = useState<boolean>(false);
-  const [signUpValidated, setSignUpValidated] = useState<boolean>(false);
-  const [authType, setAuthType] = useState<'signup' | 'signin'>('signin');
-  const signInForm = useRef<HTMLFormElement>(null);
-  const signUpForm = useRef<HTMLFormElement>(null);
-  const { dispatch: dispatchMessage } = useMessage();
-  const { state: authState, signIn } = useAuth();
-  const navigate = useNavigate();
-  const handleSignInChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    setSignInFormData({
-      ...signInFormData,
-      [event.target.id]: event.target.value,
-    });
-  };
-  const handleSignInSubmit = (
-    event: React.FormEvent<HTMLFormElement>
-  ): void => {
-    event.preventDefault();
-    event.stopPropagation();
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      setSignInValidated(true);
-      return;
-    }
-    setSignInValidated(false);
-    handleSignIn(signInFormData);
-  };
-  const handleSignUpChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    setSignUpFormData({
-      ...signUpFormData,
-      [event.target.id]: event.target.value,
-    });
-  };
-  const handleSignUpSubmit = (
-    event: React.FormEvent<HTMLFormElement>
-  ): void => {
-    event.preventDefault();
-    event.stopPropagation();
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      setSignUpValidated(true);
-      return;
-    }
-    setSignUpValidated(false);
-    handleSignUp(signUpFormData);
-  };
+import { useMessage } from '@/contexts/messageContext';
 
-  const handleSignIn = async (data: SignInData): Promise<void> => {
-    const result = await signIn(data);
+import { SignInData, SignUpData, signUp } from '@/api/user';
+
+const SignIn: FC = () => {
+  const { control, handleSubmit } = useForm();
+  const { state: authState, signIn } = useAuth();
+  const { dispatch: dispatchMessage } = useMessage();
+  const onSignInSubmit = async (val: any) => {
+    const result = await signIn(val);
     if (result.code === 200) {
       dispatchMessage({
         type: 'SET_MESSAGE',
         payload: {
           type: 'success',
-          icon: <SvgIcon name="correct" color="var(--bs-green)" />,
           content: result.data.message,
           delay: 5000,
         },
       });
-      navigate('/home');
-      signInForm.current?.reset();
     } else {
       dispatchMessage({
         type: 'SET_MESSAGE',
         payload: {
-          type: 'danger',
-          icon: <SvgIcon name="error" color="var(--bs-red)" />,
-          content: result.msg,
-          delay: 5000,
-        },
-      });
-    }
-  };
-  const handleSignUp = async (data: SignUpData): Promise<void> => {
-    const result = await signUp(data);
-    if (result.code === 200) {
-      dispatchMessage({
-        type: 'SET_MESSAGE',
-        payload: {
-          type: 'success',
-          icon: <SvgIcon name="correct" />,
-          content: result.data,
-          delay: 5000,
-        },
-      });
-      signUpForm.current?.reset();
-    } else {
-      dispatchMessage({
-        type: 'SET_MESSAGE',
-        payload: {
-          type: 'danger',
-          icon: <SvgIcon name="error" />,
+          type: 'error',
           content: result.msg,
           delay: 5000,
         },
@@ -120,112 +43,90 @@ const Auth: FC = () => {
     }
   };
   return (
-    <div className="auth">
-      <div className="auth-show display-4">Login Pic ｜ slogan</div>
-      <div className="auth-form">
-        {authType === 'signin' ? (
-          <Form
-            ref={signInForm}
-            noValidate
-            validated={signInValidated}
-            className="w-100"
-            onSubmit={handleSignInSubmit}>
-            <Form.Group className="mb-3" controlId="account">
-              <Form.Label>账号</Form.Label>
-              <Form.Control
-                required
-                placeholder="请输入账号"
-                onChange={handleSignInChange}
-              />
-              <Form.Control.Feedback type="invalid">
-                请输入账号
-              </Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="password">
-              <Form.Label>密码</Form.Label>
-              <Form.Control
-                required
-                type="password"
-                placeholder="请输入密码"
-                onChange={handleSignInChange}
-              />
-              <Form.Control.Feedback type="invalid">
-                请输入密码
-              </Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group
-              className="mb-3 d-flex justify-content-between"
-              controlId="formBasicCheckbox">
-              <Form.Check type="checkbox" label="自动登录" />
-              <Form.Text className="text-muted">
-                <a href="#">忘记密码?</a>
-              </Form.Text>
-            </Form.Group>
-            <Button variant="primary" type="submit" className="w-100">
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height="lg"
+      width="lg">
+      <CssBaseline />
+      <Box
+        display="flex"
+        height="lg"
+        justifyContent="center"
+        paddingRight={8}
+        alignItems="center">
+        <h1>SLOGIN HERE</h1>
+      </Box>
+      <Box
+        maxWidth="30%"
+        display="flex"
+        marginTop={8}
+        paddingLeft={8}
+        borderLeft="1px solid #ccc"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center">
+        <Typography variant="h5">Sign in</Typography>
+        <Box sx={{ mt: 1 }}>
+          <form onSubmit={handleSubmit(onSignInSubmit)}>
+            <Controller
+              name="account"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <TextField
+                  id={field.name}
+                  margin="normal"
+                  fullWidth
+                  label="账号"
+                  {...field}
+                />
+              )}
+            />
+            <Controller
+              name="password"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <TextField
+                  margin="normal"
+                  fullWidth
+                  label="密码"
+                  type="password"
+                  id="password"
+                  {...field}
+                />
+              )}
+            />
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="自动登录"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}>
               登录
             </Button>
-            <Button
-              variant="outline-primary"
-              className="w-100 mt-3"
-              onClick={(e) => {
-                e.preventDefault();
-                setAuthType('signup');
-              }}>
-              没有账号？去注册！
-            </Button>
-          </Form>
-        ) : (
-          <Form
-            ref={signUpForm}
-            noValidate
-            validated={signUpValidated}
-            className="w-100"
-            onSubmit={handleSignUpSubmit}>
-            <Form.Group className="mb-3" controlId="account">
-              <Form.Label>账号</Form.Label>
-              <Form.Control
-                placeholder="请输入账号"
-                onChange={handleSignUpChange}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="password">
-              <Form.Label>密码</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="请输入密码"
-                onChange={handleSignUpChange}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="phone">
-              <Form.Label>手机号</Form.Label>
-              <Form.Control
-                placeholder="请输入手机号"
-                onChange={handleSignUpChange}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="email">
-              <Form.Label>邮箱</Form.Label>
-              <Form.Control
-                placeholder="请输入邮箱"
-                onChange={handleSignUpChange}
-              />
-            </Form.Group>
-            <Button variant="primary" type="submit" className="w-100">
-              注册
-            </Button>
-            <Button
-              variant="outline-primary"
-              className="w-100 mt-3"
-              onClick={(e) => {
-                e.preventDefault();
-                setAuthType('signin');
-              }}>
-              已有账号？去登录！
-            </Button>
-          </Form>
-        )}
-      </div>
-    </div>
+          </form>
+          <Grid container>
+            <Grid item xs>
+              <Link href="#" variant="body2">
+                忘记密码？
+              </Link>
+            </Grid>
+            <Grid item>
+              <Link href="#" variant="body2">
+                还没有账号？去注册
+              </Link>
+            </Grid>
+          </Grid>
+        </Box>
+      </Box>
+    </Box>
   );
 };
-export default Auth;
+
+export default SignIn;

@@ -1,15 +1,17 @@
 import React, { FC, useEffect, useState, useRef } from 'react';
-import { Alert } from 'react-bootstrap';
+import { Alert, IconButton, Collapse, AlertTitle } from '@mui/material';
+import { AlertColor } from '@mui/material/Alert';
+import CloseIcon from '@mui/icons-material/Close';
 import './index.less';
 interface Props {
-  type: string;
+  type: AlertColor;
   icon?: React.ReactNode;
   title?: string;
   content: string;
   delay?: number;
 }
 const BaseAlert: FC<Props> = (props: Props) => {
-  const { type, icon, title, content, delay = 0 } = props;
+  const { type, title, content, delay = 0 } = props;
   const [isShow, setIsShow] = useState<boolean>(false);
   const [seconds, setSeconds] = useState<number>(delay / 1000);
   const intervalRef = useRef<number>();
@@ -38,23 +40,22 @@ const BaseAlert: FC<Props> = (props: Props) => {
     };
   }, [props]);
   return (
-    <div className="baseAlert">
-      <Alert variant={type} show={isShow} dismissible onClose={handleClose}>
-        {title && (
-          <Alert.Heading>
-            {icon && icon}
-            &nbsp;
-            {title}
-          </Alert.Heading>
-        )}
-        <p className="m-0">
-          {icon && !title && icon}
-          &nbsp;
-          {content}
-        </p>
-        <div className="alert-seconds-tip">({seconds} s)</div>
+    <Collapse in={isShow}>
+      <Alert
+        severity={type}
+        action={
+          <IconButton
+            aria-label="close"
+            color="inherit"
+            size="small"
+            onClick={handleClose}>
+            <CloseIcon fontSize="inherit" />({seconds} s)
+          </IconButton>
+        }>
+        {title && <AlertTitle>{title}</AlertTitle>}
+        {content}
       </Alert>
-    </div>
+    </Collapse>
   );
 };
 export default BaseAlert;

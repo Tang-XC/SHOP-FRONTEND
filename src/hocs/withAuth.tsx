@@ -8,7 +8,6 @@ export default (
 ) => {
   const { state } = useAuth();
   const { token, roles } = state;
-  console.log(roles);
   if (token && roles.some((it) => it.id === role)) {
     return <Component />;
   } else {

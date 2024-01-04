@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { SvgIcon } from '@/components';
-import { Button } from 'react-bootstrap';
+import { Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 const _404_: FC = (): JSX.Element => {
   const navigate = useNavigate();
@@ -8,14 +8,28 @@ const _404_: FC = (): JSX.Element => {
     navigate(-1);
   };
   return (
-    <div className="d-flex w-50 h-100 m-auto">
-      <div className="flex-grow-1 d-flex justify-content-center align-items-center">
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+      }}>
+      <div>
         <SvgIcon name="noPage" size="400" />
       </div>
-      <div className="flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          ml: '40px',
+        }}>
         <div
           style={{
-            fontSize: '30px',
+            fontSize: '40px',
+            fontWeight: 'bold',
           }}>
           页面丢失
         </div>
@@ -23,12 +37,12 @@ const _404_: FC = (): JSX.Element => {
           style={{
             marginTop: '20px',
           }}>
-          <Button variant="outline-primary" onClick={handleBack}>
+          <Button variant="contained" onClick={handleBack}>
             返回
           </Button>
         </div>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 export default _404_;

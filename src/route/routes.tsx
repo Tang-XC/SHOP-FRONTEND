@@ -1,5 +1,5 @@
 import React, { Suspense, FC, lazy } from 'react';
-import Spinner from 'react-bootstrap/Spinner';
+import { CircularProgress } from '@mui/material';
 import { Navigate } from 'react-router-dom';
 export interface RouteItem {
   path: string;
@@ -12,12 +12,7 @@ export interface RouteItem {
 }
 export const lazyLoad = (Comp: FC<any>) => {
   return (
-    <Suspense
-      fallback={
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-      }>
+    <Suspense fallback={<CircularProgress />}>
       <Comp />
     </Suspense>
   );
@@ -35,35 +30,11 @@ export const merchantRoutes: RouteItem[] = [
     },
   },
   {
-    path: '/merchant/products',
-    element: lazyLoad(React.lazy(() => import('@/pages/merchant/products'))),
+    path: '/merchant/shop',
+    element: lazyLoad(React.lazy(() => import('@/pages/merchant/shop'))),
     showNav: {
-      title: '商品管理',
+      title: '我的店铺',
     },
-    children: [
-      {
-        path: '',
-        element: <Navigate to="/merchant/products/list" />,
-      },
-      {
-        path: '/merchant/products/list',
-        element: lazyLoad(
-          React.lazy(() => import('@/pages/merchant/products/list'))
-        ),
-        showNav: {
-          title: '商品列表',
-        },
-      },
-      {
-        path: '/merchant/products/add',
-        element: lazyLoad(
-          React.lazy(() => import('@/pages/merchant/products/add'))
-        ),
-        showNav: {
-          title: '添加商品',
-        },
-      },
-    ],
   },
 ];
 export const consumerRoutes: RouteItem[] = [

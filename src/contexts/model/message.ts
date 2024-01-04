@@ -1,6 +1,6 @@
+import { AlertColor } from '@mui/material/Alert';
 export interface Message {
-  type: string;
-  icon?: React.ReactNode;
+  type: AlertColor;
   title?: string;
   content: string;
   delay?: number;

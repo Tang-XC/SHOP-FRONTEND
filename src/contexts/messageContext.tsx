@@ -16,10 +16,9 @@ enum ACTION_TYPE {
   CLEAR_MESSAGE = 'CLEAR_MESSAGE',
 }
 const initialState: Message = {
-  type: '',
+  type: 'success',
   title: '',
   content: '',
-  icon: null,
   delay: 0,
 };
 const messageContext: React.Context<{}> = createContext({});
