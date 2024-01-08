@@ -40,7 +40,13 @@ const BaseAlert: FC<Props> = (props: Props) => {
     };
   }, [props]);
   return (
-    <Collapse in={isShow}>
+    <Collapse
+      in={isShow}
+      sx={{
+        width: '100%',
+        position: 'absolute',
+        zIndex: 1,
+      }}>
       <Alert
         severity={type}
         action={

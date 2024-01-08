@@ -6,4 +6,4 @@ const Merchant: FC = (): JSX.Element => {
   return <Outlet />;
 };
 
-export default () => withAuth(Merchant, undefined, 2);
+export default () => withAuth(Merchant, undefined, [2]);

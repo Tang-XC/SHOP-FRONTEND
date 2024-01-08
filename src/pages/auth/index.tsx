@@ -13,6 +13,7 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '@/contexts/authContext';
 import { useMessage } from '@/contexts/messageContext';
+import withAuth from '@/hocs/withAuth';
 
 import { SignInData, SignUpData, signUp } from '@/api/user';
 
@@ -129,4 +130,6 @@ const SignIn: FC = () => {
   );
 };
 
-export default SignIn;
+export default () => {
+  return withAuth(SignIn);
+};

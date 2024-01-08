@@ -19,6 +19,7 @@ import {
   InputAdornment,
   MenuItem,
   TextField,
+  Popover,
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import EditIcon from '@mui/icons-material/Edit';
@@ -27,8 +28,10 @@ import AddIcon from '@mui/icons-material/Add';
 import { useForm, Controller } from 'react-hook-form';
 import { Table, SvgIcon, Upload } from '@/components';
 import { getCategoryList } from '@/api/category';
-import { getProductList, createProduct } from '@/api/product';
+import { getProductList, createProduct, deleteProduct } from '@/api/product';
 import { uploadImages } from '@/api/file';
+import { useMessage } from '@/contexts/messageContext';
+
 interface CategoryItem {
   id: number;
   name: string;
@@ -36,12 +39,20 @@ interface CategoryItem {
 
 const ShopList: FC = () => {
   const [categoryList, setCategoryList] = useState<CategoryItem[]>([]);
-  const [selected, setSelected] = useState<number>(1);
+  const [selected, setSelected] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(false);
   const [actionType, setActionType] = useState<number>(0);
+  const [total, setTotal] = useState<number>(0);
+  const [page, setPage] = useState<number>(0);
+  const [size, setSize] = useState<number>(10);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [popConfirm, setPopConfirm] = useState<boolean>(false);
+  const [currentId, setCurrentId] = useState<number>(0);
+
   const form = useRef<any>();
   const actionRef = useRef<any>();
   const { control, handleSubmit, reset } = useForm();
+  const { dispatch: dispatchMessage } = useMessage();
 
   const columns = [
     {
@@ -52,8 +63,9 @@ const ShopList: FC = () => {
         return (
           <Box
             sx={{
-              width: 100,
-              height: 100,
+              width: 40,
+              height: 40,
+              transform: 'scale(1.2)',
             }}>
             <img
               src={text}
@@ -118,20 +130,28 @@ const ShopList: FC = () => {
       title: '操作',
       dataIndex: 'action',
       key: 'action',
-      render: (text: string) => {
+      fixed: 'right',
+      render: (text: string, record: any) => {
         return (
           <Stack
             direction="row"
             divider={<Divider orientation="vertical" flexItem />}
             spacing={1}>
-            <IconButton type="button" sx={{ p: '10px' }}>
+            <IconButton type="button" sx={{ p: 0 }}>
               <InfoIcon color="primary" />
             </IconButton>
-            <IconButton type="button" sx={{ p: '10px' }}>
+            <IconButton type="button" sx={{ p: 0 }}>
               <EditIcon color="primary" />
             </IconButton>
-            <IconButton type="button" sx={{ p: '10px' }}>
-              <DeleteIcon color="primary" />
+            <IconButton
+              type="button"
+              sx={{ p: 0 }}
+              onClick={(event) => {
+                setAnchorEl(event.currentTarget);
+                setPopConfirm(true);
+                setCurrentId(parseInt(record.id));
+              }}>
+              <DeleteIcon color="error" />
             </IconButton>
           </Stack>
         );
@@ -149,11 +169,12 @@ const ShopList: FC = () => {
       setCategoryList(result.data);
     }
   };
-  const getProducts = async () => {
-    const result = await getProductList();
+  const getProducts = async (params: any) => {
+    const result = await getProductList(params);
     if (result.code === 200) {
+      setTotal(result.data.total);
       return {
-        data: result.data,
+        data: result.data.products,
       };
     }
     return {
@@ -184,6 +205,20 @@ const ShopList: FC = () => {
       }
     }
   };
+  const onDelete = async (id: number) => {
+    const result = await deleteProduct(id);
+    if (result.code === 200) {
+      dispatchMessage({
+        type: 'SET_MESSAGE',
+        payload: {
+          type: 'success',
+          content: result.data,
+          delay: 5000,
+        },
+      });
+      actionRef.current.reload();
+    }
+  };
   useEffect(() => {
     getCategory();
   }, []);
@@ -192,14 +227,14 @@ const ShopList: FC = () => {
       <Box
         sx={{
           display: 'flex',
-          height: '100%',
         }}>
         <Box
           component={Paper}
           elevation={3}
           sx={{
             width: 150,
-            height: 'fit-content',
+            maxHeight: 'calc(100vh - 118px)',
+            overflow: 'auto',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -234,11 +269,25 @@ const ShopList: FC = () => {
             flexGrow: 1,
           }}>
           <Table
+            maxHeight="calc(100vh - 118px)"
             actionRef={actionRef}
             elevation={3}
             searchMode="simple"
             columns={columns}
             request={getProducts}
+            params={{
+              page: page,
+              size: size,
+              category: selected,
+            }}
+            pagination={{
+              total: total,
+              page: page,
+              size: size,
+              onPageChange: (event, page) => {
+                setPage(page);
+              },
+            }}
             onCreate={() => setOpen(true)}
           />
         </Box>
@@ -384,13 +433,6 @@ const ShopList: FC = () => {
                       label="商品图片"
                       listType="picture-card"
                       multiple={true}
-                      fileList={[
-                        {
-                          uid: '-1',
-                          name: 'image.png',
-                          url: 'https://secure-res.craft.do/v2/SndzjVW5t6K3GdRuGbWpq8uUUgKVVoPiQGuHk45wCSHssLToodZ9Uy7gzz1tsUxoWYaRGaZHsuBx6cXdN3ZX1dhi3rbZ7BEtnY5KE4AmbNrCbBWzgox3ACgNYeKntvsk7SWPTd32xATkywbaPH5JyeRz4pn4h4bpaSA2xGecXSrTmmZ/Starfield_Journey_Through_Space_16x9_Center.jpg',
-                        },
-                      ]}
                       {...field}>
                       <AddIcon />
                     </Upload>
@@ -419,6 +461,38 @@ const ShopList: FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Popover
+        open={popConfirm}
+        anchorEl={anchorEl}
+        onClose={() => setPopConfirm(false)}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}>
+        <Typography sx={{ p: 2 }} display="flex" alignItems="center">
+          <InfoIcon sx={{ pr: 1 }} color="warning" />
+          确定要删除吗?
+        </Typography>
+        <DialogActions>
+          <Button
+            size="small"
+            onClick={() => {
+              setPopConfirm(false);
+            }}>
+            取消
+          </Button>
+          <Button
+            size="small"
+            variant="contained"
+            color="error"
+            onClick={() => {
+              onDelete(currentId);
+              setPopConfirm(false);
+            }}>
+            确定
+          </Button>
+        </DialogActions>
+      </Popover>
     </>
   );
 };

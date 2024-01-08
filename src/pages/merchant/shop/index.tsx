@@ -55,33 +55,50 @@ const Shop: FC = () => {
     <Box
       sx={{
         display: 'flex',
-        height: 'calc(100vh - 115px)',
+        height: 'calc(100vh - 112px)',
+        overflow: 'hidden',
       }}>
-      <Tabs
-        orientation="vertical"
-        variant="scrollable"
-        value={value}
-        onChange={handleChange}
-        aria-label="Vertical tabs example"
-        sx={{ borderRight: 1, borderColor: 'divider' }}>
-        {items.map((item) => (
-          <Tab
-            key={item.key}
-            label={item.label}
-            value={item.key}
-            sx={{
-              p: 3,
-              fontSize: 'inherit',
-            }}
-          />
-        ))}
-      </Tabs>
-      <TabPanel value={value} index="shop">
-        <Products />
-      </TabPanel>
-      <TabPanel value={value} index="order">
-        Item Two
-      </TabPanel>
+      <Box
+        sx={{
+          minWidth: '120px',
+          height: '100%',
+        }}>
+        <Tabs
+          orientation="vertical"
+          variant="scrollable"
+          value={value}
+          onChange={handleChange}
+          aria-label="Vertical tabs example"
+          sx={{
+            borderRight: 1,
+            borderColor: 'divider',
+            height: '100%',
+          }}>
+          {items.map((item) => (
+            <Tab
+              key={item.key}
+              label={item.label}
+              value={item.key}
+              sx={{
+                p: 3,
+                fontSize: 'inherit',
+              }}
+            />
+          ))}
+        </Tabs>
+      </Box>
+      <Box
+        sx={{
+          flexGrow: 1,
+          height: '100%',
+        }}>
+        <TabPanel value={value} index="shop">
+          <Products />
+        </TabPanel>
+        <TabPanel value={value} index="order">
+          Item Two
+        </TabPanel>
+      </Box>
     </Box>
   );
 };

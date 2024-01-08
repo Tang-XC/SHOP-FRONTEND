@@ -1,8 +1,9 @@
-import React from 'react';
-import { Box } from '@mui/material';
+import { useState } from 'react';
+import { Box, Button } from '@mui/material';
 import EChartsReact from 'echarts-for-react';
 
 const GradientStackedAreaChart = () => {
+  const [state, setState] = useState(0);
   const getOption = () => ({
     tooltip: {
       trigger: 'axis',
@@ -54,9 +55,15 @@ const GradientStackedAreaChart = () => {
       // ... 更多系列
     ],
   });
-
   return (
     <Box sx={{ m: 4 }}>
+      <Button
+        variant="contained"
+        onClick={() => {
+          setState(state + 1);
+        }}>
+        更改状态
+      </Button>
       <EChartsReact
         option={getOption()}
         style={{ height: '350px', width: '100%' }}

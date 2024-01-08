@@ -3,7 +3,7 @@ export function getProductList(params?:any):Promise<ResponseData> {
   return request({
     url: "/products",
     method: "get",
-    params
+    params,
   })
 }
 export function createProduct(data:any):Promise<ResponseData>{
@@ -11,5 +11,11 @@ export function createProduct(data:any):Promise<ResponseData>{
     url:"/product",
     method:"post",
     data,
+  })
+}
+export function deleteProduct(id:number):Promise<ResponseData>{
+  return request({
+    url:`/product/${id}`,
+    method:"delete"
   })
 }

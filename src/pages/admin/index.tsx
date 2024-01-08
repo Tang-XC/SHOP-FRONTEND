@@ -6,4 +6,4 @@ const Admin: FC = (): JSX.Element => {
   return <Outlet />;
 };
 
-export default () => withAuth(Admin, undefined, 1);
+export default () => withAuth(Admin, undefined, [1]);
