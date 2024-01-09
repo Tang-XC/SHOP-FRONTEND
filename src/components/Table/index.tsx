@@ -181,6 +181,7 @@ const Table: FC<TableProps> = (props: TableProps) => {
             }}>
             {loading && (
               <Box
+                component="tr"
                 sx={{
                   position: 'absolute',
                   width: '100%',
@@ -190,7 +191,9 @@ const Table: FC<TableProps> = (props: TableProps) => {
                   display: 'grid',
                   placeItems: 'center',
                 }}>
-                <CircularProgress />
+                <td>
+                  <CircularProgress />
+                </td>
               </Box>
             )}
 

@@ -13,6 +13,13 @@ export function createProduct(data:any):Promise<ResponseData>{
     data,
   })
 }
+export function updateProduct(id:number,data:any):Promise<ResponseData>{
+  return request({
+    url:`/product/${id}`,
+    method:"put",
+    data,
+  })
+}
 export function deleteProduct(id:number):Promise<ResponseData>{
   return request({
     url:`/product/${id}`,

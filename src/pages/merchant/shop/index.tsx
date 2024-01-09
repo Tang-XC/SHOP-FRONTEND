@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { Tabs, Tab, Box } from '@mui/material';
+import { Tabs, Tab, Box, Paper } from '@mui/material';
 import Products from './products';
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -57,11 +57,15 @@ const Shop: FC = () => {
         display: 'flex',
         height: 'calc(100vh - 112px)',
         overflow: 'hidden',
+        pt: 1,
+        boxSizing: 'border-box',
+        p: 1,
       }}>
       <Box
         sx={{
           minWidth: '120px',
           height: '100%',
+          bgcolor: 'var(--elementBgColor)',
         }}>
         <Tabs
           orientation="vertical"

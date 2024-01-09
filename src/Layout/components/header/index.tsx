@@ -1,11 +1,10 @@
 import { FC, useMemo } from 'react';
-import { AppBar, Toolbar, Typography, Link, Button } from '@mui/material';
+import { AppBar, Toolbar, Typography, Link, Box, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/contexts/authContext';
 import { Avatar } from '@/components';
 import { adminRoutes, merchantRoutes, consumerRoutes } from '@/route/routes';
-import './index.less';
 interface Props {}
 const Header: FC<Props> = (props: Props) => {
   const { state: authState } = useAuth();
@@ -22,7 +21,11 @@ const Header: FC<Props> = (props: Props) => {
     navigate(path);
   };
   return (
-    <AppBar position="relative">
+    <AppBar
+      position="relative"
+      sx={{
+        zIndex: '1',
+      }}>
       <Toolbar sx={{ flexWrap: 'wrap' }}>
         <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
           LOGO HERE
@@ -33,9 +36,11 @@ const Header: FC<Props> = (props: Props) => {
               <Link
                 color="inherit"
                 underline="none"
-                href={item.path}
                 key={index}
-                sx={{ my: 1, mx: 1.5 }}>
+                sx={{ my: 1, mx: 1.5, cursor: 'pointer' }}
+                onClick={() => {
+                  handleNavigate(item.path);
+                }}>
                 {item.showNav?.title}
               </Link>
             );
