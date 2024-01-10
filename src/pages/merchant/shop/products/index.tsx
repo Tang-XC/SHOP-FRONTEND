@@ -35,6 +35,7 @@ import {
   deleteProduct,
 } from '@/api/product';
 import { uploadImages } from '@/api/file';
+import { useAuth } from '@/contexts/authContext';
 import { useMessage } from '@/contexts/messageContext';
 
 interface CategoryItem {
@@ -173,6 +174,7 @@ const ShopList: FC = () => {
   };
   const form = useRef<any>();
   const actionRef = useRef<any>();
+  const { state } = useAuth();
   const { control, handleSubmit, reset } = useForm({
     defaultValues: defaultFormValues,
   });
@@ -346,6 +348,7 @@ const ShopList: FC = () => {
               page: page,
               size: size,
               category: selected,
+              owner: state.id,
             }}
             pagination={{
               total: total,

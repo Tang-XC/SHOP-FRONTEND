@@ -45,15 +45,20 @@ const ProductCard: FC<ProductCard> = (props: ProductCard) => {
                     sx={{
                       m: '4px 0',
                       fontSize: 20,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitBoxOrient: 'vertical',
+                      WebkitLineClamp: 1,
                     }}>
                     {item.name}
                   </Box>
                   <Box
                     sx={{
+                      height: 50,
                       fontSize: 16,
                       color: '#666',
                       mb: 1,
-                      //显示两行，超出部分隐藏
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       display: '-webkit-box',
