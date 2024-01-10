@@ -1,5 +1,12 @@
 import { FC, useEffect, useState, forwardRef } from 'react';
-import { FormControl, FormLabel, Box, IconButton, Modal } from '@mui/material';
+import {
+  FormControl,
+  FormLabel,
+  Box,
+  IconButton,
+  Modal,
+  FormHelperText,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
@@ -24,9 +31,13 @@ interface UploadProps {
   multiple?: boolean;
   // onChange?: (val: { file: File; fileList: fileListItem[] }) => void;
   onChange?: (val: fileListItem[]) => void;
+  error?: boolean;
+  helperText?: string;
+  [key: string]: any;
 }
 interface PictureCardFileListItemProp {
   children?: React.ReactNode;
+  error?: boolean;
 }
 interface PictureCardFileListWrapperProp {
   children?: React.ReactNode;
@@ -51,7 +62,20 @@ const PictureCardFileListWrapper: FC<PictureCardFileListWrapperProp> = (
 const PictureCardFileListItem: FC<PictureCardFileListItemProp> = (
   props: PictureCardFileListItemProp
 ) => {
-  const { children } = props;
+  const { children, error } = props;
+  const hoverStyle = {
+    border: 3,
+    transform: 'scale(1.04)',
+    borderStyle: 'dashed',
+    borderColor: 'divider',
+    boxSizing: 'border-box',
+  };
+  const errorStyle = error
+    ? {
+        ...hoverStyle,
+        borderColor: 'error.main',
+      }
+    : {};
   return (
     <Box
       sx={{
@@ -67,15 +91,12 @@ const PictureCardFileListItem: FC<PictureCardFileListItemProp> = (
         color: 'primary.main',
         position: 'relative',
         '&:hover': {
-          border: 3,
-          transform: 'scale(1.04)',
-          borderStyle: 'dashed',
-          borderColor: 'divider',
-          boxSizing: 'border-box',
+          ...hoverStyle,
         },
         '&:hover > div': {
           opacity: 1,
         },
+        ...errorStyle,
       }}>
       {children ? children : <AddIcon />}
     </Box>
@@ -101,6 +122,8 @@ const Upload: FC<UploadProps> = forwardRef((props: UploadProps, ref) => {
     multiple,
     value = [],
     onChange,
+    error = false,
+    helperText,
     ...other
   } = props;
   const [fileListState, setFileListState] = useState<fileListItem[]>(value);
@@ -153,8 +176,11 @@ const Upload: FC<UploadProps> = forwardRef((props: UploadProps, ref) => {
       <FormControl
         component="fieldset"
         variant="standard"
+        margin={other.margin}
+        error={error}
         sx={{
           width: '100%',
+          mt: 0,
         }}>
         <FormLabel
           component="legend"
@@ -208,7 +234,7 @@ const Upload: FC<UploadProps> = forwardRef((props: UploadProps, ref) => {
                 </PictureCardFileListItem>
               );
             })}
-            <PictureCardFileListItem>
+            <PictureCardFileListItem error={error}>
               <IconButton component="label">
                 {children}
                 <VisuallyHiddenInput
@@ -223,6 +249,7 @@ const Upload: FC<UploadProps> = forwardRef((props: UploadProps, ref) => {
             </PictureCardFileListItem>
           </PictureCardFileListWrapper>
         )}
+        <FormHelperText>{helperText}</FormHelperText>
       </FormControl>
       <Modal
         open={isPreview}

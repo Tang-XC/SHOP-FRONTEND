@@ -25,8 +25,10 @@ import InfoIcon from '@mui/icons-material/Info';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { useForm, Controller, set } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { Table, SvgIcon, Upload } from '@/components';
+import PhoneSpec from './spec/phone';
+import PcSpec from './spec/pc';
 import { getCategoryList } from '@/api/category';
 import {
   getProductList,
@@ -175,10 +177,18 @@ const ShopList: FC = () => {
   const form = useRef<any>();
   const actionRef = useRef<any>();
   const { state } = useAuth();
-  const { control, handleSubmit, reset } = useForm({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm({
     defaultValues: defaultFormValues,
   });
+  console.log(errors);
   const { dispatch: dispatchMessage } = useMessage();
+  const watchCategory = watch('category');
 
   const getCategory = async () => {
     const result = await getCategoryList();
@@ -369,6 +379,32 @@ const ShopList: FC = () => {
             width: '500px',
           }}>
           <form ref={form} onSubmit={handleSubmit(onSubmit)}>
+            <Typography>商品图片(第一张为封面)</Typography>
+            <Grid item xs={12}>
+              <Controller
+                name="files"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <Upload
+                    label=""
+                    listType="picture-card"
+                    multiple={true}
+                    error={!!errors.files}
+                    helperText={errors.files ? '商品图片不能为空' : ''}
+                    {...(fieldProps as any)}
+                    {...field}>
+                    <AddIcon />
+                  </Upload>
+                )}
+              />
+            </Grid>
+            <Divider
+              sx={{
+                my: 2,
+              }}
+            />
+
             <Typography>基本信息</Typography>
             <Grid container columnSpacing={1}>
               <Grid item xs={6}>
@@ -380,6 +416,8 @@ const ShopList: FC = () => {
                     <TextField
                       id={field.name}
                       label="商品名称"
+                      error={!!errors.name}
+                      helperText={errors.name ? '商品名称不能为空' : ''}
                       {...(fieldProps as any)}
                       {...field}
                     />
@@ -396,6 +434,8 @@ const ShopList: FC = () => {
                       id={field.name}
                       label="分类"
                       select
+                      error={!!errors.category}
+                      helperText={errors.category ? '分类不能为空' : ''}
                       {...(fieldProps as any)}
                       {...field}>
                       {categoryList
@@ -420,6 +460,8 @@ const ShopList: FC = () => {
                       margin="normal"
                       fullWidth
                       label="品牌"
+                      error={!!errors.brand}
+                      helperText={errors.brand ? '品牌不能为空' : ''}
                       {...(fieldProps as any)}
                       {...field}
                     />
@@ -443,13 +485,14 @@ const ShopList: FC = () => {
                           </InputAdornment>
                         ),
                       }}
+                      error={!!errors.price}
+                      helperText={errors.price ? '价格不能为空' : ''}
                       {...(fieldProps as any)}
                       {...field}
                     />
                   )}
                 />
               </Grid>
-
               <Grid item xs={4}>
                 <Controller
                   name="stock"
@@ -465,6 +508,8 @@ const ShopList: FC = () => {
                           <InputAdornment position="start">件</InputAdornment>
                         ),
                       }}
+                      error={!!errors.stock}
+                      helperText={errors.stock ? '库存不能为空' : ''}
                       {...(fieldProps as any)}
                       {...field}
                     />
@@ -482,29 +527,30 @@ const ShopList: FC = () => {
                       label="描述"
                       multiline
                       rows={4}
+                      error={!!errors.desc}
+                      helperText={errors.desc ? '描述不能为空' : ''}
                       {...(fieldProps as any)}
                       {...field}
                     />
                   )}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <Controller
-                  name="files"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <Upload
-                      label="商品图片"
-                      listType="picture-card"
-                      multiple={true}
-                      {...field}>
-                      <AddIcon />
-                    </Upload>
-                  )}
-                />
-              </Grid>
             </Grid>
+            <Divider
+              sx={{
+                my: 2,
+              }}
+            />
+            {watchCategory && <Typography>规格</Typography>}
+            {watchCategory === 1 && (
+              <PhoneSpec control={control} fieldProps={fieldProps} />
+            )}
+            {watchCategory === 2 && (
+              <PcSpec control={control} fieldProps={fieldProps} />
+            )}
+            {watchCategory === 3 && (
+              <PhoneSpec control={control} fieldProps={fieldProps} />
+            )}
           </form>
         </DialogContent>
         <DialogActions>
